@@ -1,12 +1,14 @@
+import com.osmb.api.input.MenuEntry;
+import com.osmb.api.input.MenuHook;
+import com.osmb.api.item.ItemGroupResult;
+import com.osmb.api.item.ItemID;
+import com.osmb.api.scene.RSObject;
 import com.osmb.api.script.Script;
 import com.osmb.api.script.ScriptDefinition;
 import com.osmb.api.script.SkillCategory;
-import tasks.Chop;
-import tasks.Drop;
-import utils.Task;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.Collections;
+import java.util.Set;
 
 @ScriptDefinition(
         name = "Demon Tear Woodcutting",
@@ -16,10 +18,14 @@ import java.util.List;
         skillCategory = SkillCategory.WOODCUTTING
 )
 public class DemonTears extends Script {
-    private final List<Task> tasks = Arrays.asList(
-            new Drop(this),
-            new Chop(this)
-    );
+    private static final int DEMON_TEAR_ID = ItemID.DEMON_TEAR;
+
+    private long lastGainAt = System.currentTimeMillis();
+
+    private int logsBaseline = 0;
+    private int tearsBaseline = -1;
+
+    private boolean isChopping = false;
 
     public DemonTears(Object scriptCore) {
         super(scriptCore);
@@ -27,14 +33,102 @@ public class DemonTears extends Script {
 
     @Override
     public int poll() {
-        for (Task task : tasks) {
-            if (task.activate()) {
-                submitHumanTask(task::execute, this.random(400, 800));
-                return 0;
-            }
+        if (refreshGains()) {
+            lastGainAt = System.currentTimeMillis();
+        }
+
+        if (shouldDrop()) {
+            dropLogs();
+            isChopping = false;
+        } else if (shouldChop()) {
+            chopInfectedRoot();
         }
 
         return 0;
+    }
+
+    private boolean shouldChop() {
+        long now = System.currentTimeMillis();
+
+        long IDLE_NO_GAIN_MS = random(12000, 15000);
+        if (now - lastGainAt < IDLE_NO_GAIN_MS && isChopping) {
+            return false;
+        }
+
+        RSObject root = getObjectManager().getClosestObject("Strange root");
+        return root != null;
+    }
+
+    private void chopInfectedRoot() {
+        RSObject root = getObjectManager().getClosestObject("Strange root");
+        if (root == null) return;
+
+        ItemGroupResult all = getWidgetManager().getInventory().search(Collections.emptySet());
+        if (all != null && all.isFull()) return;
+
+        submitHumanTask(() -> {
+            if (!isChopping) {
+                isChopping = root.interact(getRootMenuHook());
+            }
+
+            return isChopping;
+        }, random(200, 400));
+    }
+
+
+    private boolean shouldDrop() {
+        ItemGroupResult inventory = getWidgetManager().getInventory().search(Collections.emptySet());
+        return inventory != null && inventory.isFull();
+    }
+
+    private void dropLogs() {
+        submitHumanTask(
+                () -> getWidgetManager().getInventory().dropItems(Set.of(ItemID.LOGS)),
+                random(400, 800)
+        );
+    }
+
+
+    private boolean refreshGains() {
+        boolean progressed = false;
+
+        int logsNow = getAmountById(ItemID.LOGS);
+        if (logsNow > logsBaseline) {
+            logsBaseline = logsNow;
+            progressed = true;
+        }
+
+        int tearsNow = getAmountById(DEMON_TEAR_ID);
+        if (tearsNow > tearsBaseline) {
+            tearsBaseline = tearsNow;
+            progressed = true;
+        }
+
+        return progressed;
+    }
+
+    private int getAmountById(int id) {
+        ItemGroupResult res = getWidgetManager().getInventory().search(Set.of(id));
+        if (res == null) return 0;
+        return res.getAmount(id);
+    }
+
+    private MenuHook getRootMenuHook() {
+        return menuEntries -> {
+            for (MenuEntry entry : menuEntries) {
+                String raw = entry.getRawText();
+                if (raw != null && raw.trim().equalsIgnoreCase("chop infected root")) {
+                    return entry;
+                }
+            }
+            return null;
+        };
+    }
+
+    @Override
+    public void onRelog() {
+        super.onRelog();
+        isChopping = false;
     }
 
     @Override
