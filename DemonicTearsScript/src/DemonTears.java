@@ -95,7 +95,9 @@ public class DemonTears extends Script {
 
     private boolean refreshGains() {
         boolean progressed = false;
+
         int logsNow = getAmountById(ItemID.LOGS);
+
         if (logsNow > logsBaseline) {
             int delta = logsNow - logsBaseline;
             logsTotalGained += delta;
@@ -104,7 +106,9 @@ public class DemonTears extends Script {
         } else if (logsNow < logsBaseline) {
             logsBaseline = logsNow;
         }
+
         int tearsNow = getAmountById(DEMON_TEAR_ID);
+
         if (tearsNow > tearsBaseline) {
             int delta = tearsNow - tearsBaseline;
             tearsTotalGained += delta;
@@ -113,6 +117,7 @@ public class DemonTears extends Script {
         } else if (tearsNow < tearsBaseline) {
             tearsBaseline = tearsNow;
         }
+
         return progressed;
     }
 
