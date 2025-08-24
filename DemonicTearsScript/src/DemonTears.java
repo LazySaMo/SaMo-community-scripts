@@ -50,10 +50,7 @@ public class DemonTears extends Script {
 
         if (shouldDrop()) {
             dropLogs();
-            logsBaseline = getAmountById(ItemID.LOGS);
-            tearsBaseline = getAmountById(DEMON_TEAR_ID);
-            lastGainAt = System.currentTimeMillis();
-            isChopping = false;
+            resetBaselines();
         } else if (shouldChop()) {
             chopInfectedRoot();
         }
@@ -139,6 +136,13 @@ public class DemonTears extends Script {
         };
     }
 
+    private void resetBaselines() {
+        isChopping = false;
+        lastGainAt = System.currentTimeMillis();
+        logsBaseline = getAmountById(ItemID.LOGS);
+        tearsBaseline = getAmountById(DEMON_TEAR_ID);
+    }
+
     @Override
     public void onPaint(Canvas c) {
         long elapsed = Math.max(1, System.currentTimeMillis() - hudStartMs);
@@ -199,10 +203,7 @@ public class DemonTears extends Script {
     @Override
     public void onRelog() {
         super.onRelog();
-        isChopping = false;
-        lastGainAt = System.currentTimeMillis();
-        logsBaseline = getAmountById(ItemID.LOGS);
-        tearsBaseline = getAmountById(DEMON_TEAR_ID);
+        resetBaselines();
     }
 
     @Override
