@@ -21,6 +21,7 @@ public class DemonTears extends Script {
     private static final int DEMON_TEAR_ID = ItemID.DEMON_TEAR;
 
     private long lastGainAt = System.currentTimeMillis();
+    private int idleWindowMs = random(12000, 15000);
 
     private int logsBaseline = 0;
     private int tearsBaseline = -1;
@@ -35,6 +36,7 @@ public class DemonTears extends Script {
     public int poll() {
         if (refreshGains()) {
             lastGainAt = System.currentTimeMillis();
+            idleWindowMs = random(12000, 15000);
         }
 
         if (shouldDrop()) {
@@ -50,8 +52,7 @@ public class DemonTears extends Script {
     private boolean shouldChop() {
         long now = System.currentTimeMillis();
 
-        long IDLE_NO_GAIN_MS = random(12000, 15000);
-        if (now - lastGainAt < IDLE_NO_GAIN_MS && isChopping) {
+        if (now - lastGainAt < idleWindowMs && isChopping) {
             return false;
         }
 
