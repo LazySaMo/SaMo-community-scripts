@@ -122,7 +122,7 @@ class BlisterWood(core: Any) : Script(core) {
         return now
     }
 
-    private fun randomIdle(): Long = RandomUtils.uniformRandom(8000, 16000).toLong()
+    private fun randomIdle(): Long = RandomUtils.uniformRandom(8000, 12000).toLong()
 
     override fun regionsToPrioritise(): IntArray = intArrayOf(14388)
 
