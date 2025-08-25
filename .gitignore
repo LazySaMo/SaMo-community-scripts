@@ -24,4 +24,8 @@ replay_pid*
 
 .idea
 *.iml
-.out*
+
+# Compiler output
+out/
+target/
+build/
