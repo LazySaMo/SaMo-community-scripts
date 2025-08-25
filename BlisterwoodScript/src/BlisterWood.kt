@@ -27,15 +27,8 @@ class BlisterWood(core: Any) : Script(core) {
 
     override fun poll(): Int {
         when {
-            isInventoryFull() -> {
-                // add a bit of fake human delay
-                loopUntilTrueOrTimeout(400, 800) { false }
-                dropItemIds(setOf(ItemID.BLISTERWOOD_LOGS))
-            }
-
-            else -> {
-                chopBlisterWoodTree()
-            }
+            isInventoryFull() -> dropItemIds(setOf(ItemID.BLISTERWOOD_LOGS))
+            else -> chopBlisterWoodTree()
         }
 
         return 0
@@ -57,12 +50,19 @@ class BlisterWood(core: Any) : Script(core) {
             return false
         }
 
-        val stopWatch = Stopwatch(randomIdle())
+        val isPlayerAnimatingStopWatch = Stopwatch(randomIdleTimer())
+        val idleStopwatch = Stopwatch(randomPlayerAnimatingTimer())
+
         var currentLogAmount = -1
 
         loopUntilTrueOrTimeout(200_000, 300_000) {
             val inventory = inventoryOf(setOf(ItemID.BLISTERWOOD_LOGS))
             when {
+                pixelAnalyzer.isPlayerAnimating(0.3) -> {
+                    isPlayerAnimatingStopWatch.reset(randomPlayerAnimatingTimer())
+                    false
+                }
+
                 inventory == null -> {
                     log("Failed to get inventory snapshot, retrying…")
                     false
@@ -70,16 +70,22 @@ class BlisterWood(core: Any) : Script(core) {
 
                 inventory.isFull -> true
 
-                stopWatch.hasFinished() -> {
+                idleStopwatch.hasFinished() || isPlayerAnimatingStopWatch.hasFinished() -> {
                     log("Idle too long, re-chop…")
                     true
                 }
 
                 else -> {
-                    currentLogAmount = onLogListener(currentLogAmount, inventory, stopWatch)
+                    currentLogAmount = onLogListener(currentLogAmount, inventory, idleStopwatch)
                     false
                 }
             }
+        }
+
+        val shouldDelay = RandomUtils.gaussianRandom(0, 5, 2.0, 2.0) == 0
+        if (shouldDelay) {
+            val delayMs = RandomUtils.gaussianRandom(500, 5000, 1500.0, 1000.0)
+            submitTask({ false }, delayMs)
         }
 
         return true
@@ -109,20 +115,22 @@ class BlisterWood(core: Any) : Script(core) {
     private fun onLogListener(
         currentAmount: Int,
         inv: ItemGroupResult,
-        stopWatch: Stopwatch
+        stopwatch: Stopwatch,
     ): Int {
         val now = inv.getAmount(ItemID.BLISTERWOOD_LOGS)
         val was = if (currentAmount < 0) now else currentAmount
 
         if (now > was) {
             logsTotalGained += (now - was)
-            stopWatch.reset(randomIdle())
+            stopwatch.reset(randomIdleTimer())
         }
 
         return now
     }
 
-    private fun randomIdle(): Long = RandomUtils.uniformRandom(8000, 12000).toLong()
+    private fun randomIdleTimer(): Long = RandomUtils.uniformRandom(8000, 12000).toLong()
+
+    private fun randomPlayerAnimatingTimer(): Long = RandomUtils.uniformRandom(1500, 2000).toLong()
 
     override fun regionsToPrioritise(): IntArray = intArrayOf(14388)
 
