@@ -60,6 +60,7 @@ class BlisterWood(core: Any) : Script(core) {
             when {
                 pixelAnalyzer.isPlayerAnimating(0.3) -> {
                     isPlayerAnimatingStopWatch.reset(randomPlayerAnimatingTimer())
+                    idleStopwatch.reset(randomIdleTimer())
                     false
                 }
 
@@ -76,7 +77,8 @@ class BlisterWood(core: Any) : Script(core) {
                 }
 
                 else -> {
-                    currentLogAmount = onLogListener(currentLogAmount, inventory, idleStopwatch)
+                    currentLogAmount =
+                        onLogListener(currentLogAmount, inventory, idleStopwatch, isPlayerAnimatingStopWatch)
                     false
                 }
             }
@@ -116,6 +118,7 @@ class BlisterWood(core: Any) : Script(core) {
         currentAmount: Int,
         inv: ItemGroupResult,
         stopwatch: Stopwatch,
+        isPlayerAnimatingStopWatch: Stopwatch,
     ): Int {
         val now = inv.getAmount(ItemID.BLISTERWOOD_LOGS)
         val was = if (currentAmount < 0) now else currentAmount
@@ -123,6 +126,7 @@ class BlisterWood(core: Any) : Script(core) {
         if (now > was) {
             logsTotalGained += (now - was)
             stopwatch.reset(randomIdleTimer())
+            isPlayerAnimatingStopWatch.reset(randomPlayerAnimatingTimer())
         }
 
         return now
