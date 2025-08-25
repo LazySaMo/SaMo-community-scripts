@@ -45,13 +45,13 @@ class BlisterWood(core: Any) : Script(core) {
             return false
         }
 
-        if (!root.interact(CHOP_INTERACTION_NAME)) {
-            log("Failed to interact…")
+        if (!waitUntilAtTree(root)) {
+            log("Failed to reach tree…")
             return false
         }
 
-        if (!waitUntilAtTree(root)) {
-            log("Failed to reach tree…")
+        if (!root.interact(CHOP_INTERACTION_NAME)) {
+            log("Failed to interact…")
             return false
         }
 
@@ -67,6 +67,7 @@ class BlisterWood(core: Any) : Script(core) {
                 }
 
                 inventory.isFull -> true
+
                 stopWatch.hasFinished() -> {
                     log("Idle too long, re-chop…")
                     true
@@ -98,6 +99,7 @@ class BlisterWood(core: Any) : Script(core) {
             }
 
         }, RandomUtils.uniformRandom(4000, 8000))
+
         return result.get()
     }
 
@@ -108,10 +110,12 @@ class BlisterWood(core: Any) : Script(core) {
     ): Int {
         val now = inv.getAmount(ItemID.BLISTERWOOD_LOGS)
         val was = if (currentAmount < 0) now else currentAmount
+
         if (now > was) {
             logsTotalGained += (now - was)
             stopWatch.reset(randomIdle())
         }
+
         return now
     }
 
