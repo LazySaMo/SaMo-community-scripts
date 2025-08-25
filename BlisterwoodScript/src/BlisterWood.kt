@@ -44,12 +44,7 @@ class BlisterWood(core: Any) : Script(core) {
             log("Failed to interact…")
             return false
         }
-
-        if (!waitUntilAtTree(root)) {
-            log("Failed to reach tree…")
-            return false
-        }
-
+        
         val isPlayerAnimatingStopWatch = Stopwatch(randomIdleTimer())
         val idleStopwatch = Stopwatch(randomPlayerAnimatingTimer())
 
@@ -91,27 +86,6 @@ class BlisterWood(core: Any) : Script(core) {
         }
 
         return true
-    }
-
-    private fun waitUntilAtTree(root: RSObject): Boolean {
-        val positionChangeTimeout = RandomUtils.uniformRandom(500, 1000)
-        val result = AtomicBoolean(false)
-
-        submitTask(BooleanSupplier {
-            val wp = worldPosition ?: return@BooleanSupplier false
-
-            when {
-                root.objectArea.distanceTo(wp) <= 1 -> {
-                    result.set(true); true
-                }
-
-                lastPositionChangeMillis > positionChangeTimeout -> true
-                else -> false
-            }
-
-        }, RandomUtils.uniformRandom(4000, 8000))
-
-        return result.get()
     }
 
     private fun onLogListener(

@@ -51,11 +51,6 @@ class DemonTears(core: Any) : Script(core) {
             return false
         }
 
-        if (!waitUntilAtRoot(root)) {
-            log("Failed to reach root…")
-            return false
-        }
-
         val isPlayerAnimatingStopWatch = Stopwatch(randomIdleTimer())
         val idleStopwatch = Stopwatch(randomPlayerAnimatingTimer())
 
@@ -100,22 +95,6 @@ class DemonTears(core: Any) : Script(core) {
         }
 
         return true
-    }
-
-    private fun waitUntilAtRoot(root: RSObject): Boolean {
-        val positionChangeTimeout = RandomUtils.uniformRandom(500, 1000)
-        val result = AtomicBoolean(false)
-
-        submitTask(BooleanSupplier {
-            val wp = worldPosition ?: return@BooleanSupplier false
-            when {
-                root.objectArea.distanceTo(wp) <= 1 -> { result.set(true); true }
-                lastPositionChangeMillis > positionChangeTimeout -> true
-                else -> false
-            }
-        }, RandomUtils.uniformRandom(4000, 8000))
-
-        return result.get()
     }
 
     private fun onItemListener(
