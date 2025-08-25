@@ -28,6 +28,8 @@ class BlisterWood(core: Any) : Script(core) {
     override fun poll(): Int {
         when {
             isInventoryFull() -> {
+                // add a bit of fake human delay
+                loopUntilTrueOrTimeout(400, 800) { false }
                 dropItemIds(setOf(ItemID.BLISTERWOOD_LOGS))
             }
 
@@ -45,13 +47,13 @@ class BlisterWood(core: Any) : Script(core) {
             return false
         }
 
-        if (!waitUntilAtTree(root)) {
-            log("Failed to reach tree…")
+        if (!root.interact(CHOP_INTERACTION_NAME)) {
+            log("Failed to interact…")
             return false
         }
 
-        if (!root.interact(CHOP_INTERACTION_NAME)) {
-            log("Failed to interact…")
+        if (!waitUntilAtTree(root)) {
+            log("Failed to reach tree…")
             return false
         }
 
@@ -94,6 +96,7 @@ class BlisterWood(core: Any) : Script(core) {
                 root.objectArea.distanceTo(wp) <= 1 -> {
                     result.set(true); true
                 }
+
                 lastPositionChangeMillis > positionChangeTimeout -> true
                 else -> false
             }
