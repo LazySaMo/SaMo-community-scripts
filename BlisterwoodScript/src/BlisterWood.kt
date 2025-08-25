@@ -178,7 +178,7 @@ class BlisterWood(core: Any) : Script(core) {
         c.fillRect(x, yTop, w, h, bg.rgb, 1.0)
         c.drawRect(x, yTop, w, h, borderC.rgb)
 
-        var cx = x + padX
+        val cx = x + padX
         var cy = yTop + padY + fmBold.ascent
         c.drawText(title, cx, cy, titleC.rgb, arialBold)
         cy += fmBold.height
