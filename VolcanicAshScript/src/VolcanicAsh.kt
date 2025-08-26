@@ -37,7 +37,8 @@ class VolcanicAsh(core: Any) : Script(core) {
 
     override fun poll(): Int {
         when {
-            isInventoryFull() -> dropItemIds(setOf(ItemID.SODA_ASH))
+            isInventoryFull() -> dropItemIds(setOf(ItemID.SODA_ASH, ItemID.UNCUT_RUBY, ItemID.UNCUT_EMERALD, ItemID.UNCUT_SAPPHIRE,
+                ItemID.DIAMOND))
             else -> mineAshPile()
         }
         return 0
