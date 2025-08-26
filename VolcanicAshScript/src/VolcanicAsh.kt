@@ -66,7 +66,7 @@ class VolcanicAsh(core: Any) : Script(core) {
                 .map { ash ->
                     MineableAshPiles(
                         rsObject = ash,
-                        isMineable = !respawnCircles.contains(ash) && !isBlacklisted(ash),
+                        isMineable = !respawnCircles.contains(ash) && !isBlacklisted(ash) && ash.actions.contains("Mine"),
                         distanceTiles = ash.getTileDistance(worldPosition)
                     )
                 }
@@ -75,7 +75,7 @@ class VolcanicAsh(core: Any) : Script(core) {
 
 
         mineableAshPiles.firstOrNull()?.let { ashPile ->
-            if (isBlacklisted(ashPile.rsObject) || !ashPile.rsObject.interact("Mine")) {
+            if (!ashPile.isMineable || isBlacklisted(ashPile.rsObject) || !ashPile.rsObject.interact("Mine")) {
                 log("Was not able to mine; blacklisting for 30s")
                 blacklist(ashPile.rsObject)
                 return false
