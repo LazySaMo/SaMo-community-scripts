@@ -66,11 +66,13 @@ class VolcanicAsh(core: Any) : Script(core) {
                 .map { ash ->
                     MineableAshPiles(
                         rsObject = ash,
-                        isMineable = !respawnCircles.contains(ash) && !isBlacklisted(ash)
+                        isMineable = !respawnCircles.contains(ash) && !isBlacklisted(ash),
+                        distanceTiles = ash.getTileDistance(worldPosition)
                     )
                 }
-                .filter { it.isMineable }
-                .sortedBy { it.rsObject.getTileDistance(worldPosition) }
+                .filter { it.isMineable && it.distanceTiles > 0 }  // drop unreachable
+                .sortedBy { it.distanceTiles }
+
 
         mineableAshPiles.firstOrNull()?.let { ashPile ->
             if (isBlacklisted(ashPile.rsObject) || !ashPile.rsObject.interact("Mine")) {
@@ -118,15 +120,16 @@ class VolcanicAsh(core: Any) : Script(core) {
         return true
     }
 
-    override fun regionsToPrioritise(): IntArray = intArrayOf(14906, 14907, 15162, 15419)
+    override fun regionsToPrioritise(): IntArray = intArrayOf(14906, 14907, 15162, 15163)
 
     private companion object {
         const val ASH_PILE_NAME = "Ash pile"
-        const val ASH_BLACKLIST_TTL_MS = 31000L // 40 seconds
+        const val ASH_BLACKLIST_TTL_MS = 31000L // 31 seconds
     }
 }
 
 data class MineableAshPiles(
     val rsObject: RSObject,
     val isMineable: Boolean = true,
+    val distanceTiles: Int,
 )
