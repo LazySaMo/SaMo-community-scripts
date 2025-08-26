@@ -15,3 +15,8 @@ fun Script.isInventoryFull(): Boolean =
 
 fun Script.closestObject(name: String): RSObject? =
     objectManager.getClosestObject(name)
+
+fun Script.closestObjects(name: String): List<RSObject>? =
+    objectManager.getObjects {
+        it?.name?.contains(name) == true
+    }
