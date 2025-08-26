@@ -1,10 +1,8 @@
 import com.osmb.api.item.ItemGroupResult
 import com.osmb.api.item.ItemID
-import com.osmb.api.scene.RSObject
 import com.osmb.api.script.Script
 import com.osmb.api.script.ScriptDefinition
 import com.osmb.api.script.SkillCategory
-import com.osmb.api.utils.RandomUtils
 import com.osmb.api.utils.timing.Stopwatch
 import com.osmb.api.visual.drawing.Canvas
 import extensions.*
@@ -13,15 +11,13 @@ import timers.randomPlayerAnimatingTimer
 import java.awt.Color
 import java.awt.Font
 import java.awt.FontMetrics
-import java.util.concurrent.atomic.AtomicBoolean
-import java.util.function.BooleanSupplier
 import kotlin.math.max
 import kotlin.math.round
 
 @ScriptDefinition(
     name = "Demon Tears Woodcutting",
     author = "SaMo",
-    version = 1.4,
+    version = 1.5,
     description = "Gathers demon tears by woodcutting",
     skillCategory = SkillCategory.WOODCUTTING
 )
@@ -51,8 +47,8 @@ class DemonTears(core: Any) : Script(core) {
             return false
         }
 
-        val isPlayerAnimatingStopWatch = Stopwatch(randomIdleTimer())
-        val idleStopwatch = Stopwatch(randomPlayerAnimatingTimer())
+        val isPlayerAnimatingStopWatch = Stopwatch(randomPlayerAnimatingTimer())
+        val idleStopwatch = Stopwatch(randomIdleTimer())
 
         var currentLogAmount = -1
         var currentTearAmount = -1
@@ -159,8 +155,10 @@ class DemonTears(core: Any) : Script(core) {
 
         val textW = maxOf(
             fmBold.stringWidth(title),
-            maxOf(maxOf(fm.stringWidth(line1), fm.stringWidth(line2)),
-                maxOf(fm.stringWidth(line3), fm.stringWidth(line4)))
+            maxOf(
+                maxOf(fm.stringWidth(line1), fm.stringWidth(line2)),
+                maxOf(fm.stringWidth(line3), fm.stringWidth(line4))
+            )
         )
         val w = textW + padX * 2
         val h = padY * 2 + fmBold.height + fm.height * 4 + 12

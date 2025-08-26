@@ -1,21 +1,18 @@
 import com.osmb.api.item.ItemGroupResult
 import com.osmb.api.item.ItemID
-import com.osmb.api.scene.RSObject
 import com.osmb.api.script.Script
 import com.osmb.api.script.ScriptDefinition
 import com.osmb.api.script.SkillCategory
 import com.osmb.api.utils.RandomUtils
 import com.osmb.api.utils.timing.Stopwatch
 import extensions.*
-import java.util.concurrent.atomic.AtomicBoolean
-import java.util.function.BooleanSupplier
 import kotlin.math.max
 import kotlin.math.round
 
 @ScriptDefinition(
     name = "Blisterwood Tree woodcutting",
     author = "SaMo",
-    version = 1.2,
+    version = 1.3,
     description = "Cuts Blisterwood tree",
     skillCategory = SkillCategory.WOODCUTTING
 )
@@ -44,9 +41,9 @@ class BlisterWood(core: Any) : Script(core) {
             log("Failed to interact…")
             return false
         }
-        
-        val isPlayerAnimatingStopWatch = Stopwatch(randomIdleTimer())
-        val idleStopwatch = Stopwatch(randomPlayerAnimatingTimer())
+
+        val isPlayerAnimatingStopWatch = Stopwatch(randomPlayerAnimatingTimer())
+        val idleStopwatch = Stopwatch(randomIdleTimer())
 
         var currentLogAmount = -1
 
