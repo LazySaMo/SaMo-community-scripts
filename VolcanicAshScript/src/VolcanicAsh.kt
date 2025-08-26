@@ -73,7 +73,7 @@ class VolcanicAsh(core: Any) : Script(core) {
                 .sortedBy { it.rsObject.getTileDistance(worldPosition) }
 
         mineableAshPiles.firstOrNull()?.let { ashPile ->
-            if (!ashPile.rsObject.interact("Mine")) {
+            if (isBlacklisted(ashPile.rsObject) || !ashPile.rsObject.interact("Mine")) {
                 log("Was not able to mine; blacklisting for 30s")
                 blacklist(ashPile.rsObject)
                 return false
@@ -97,7 +97,10 @@ class VolcanicAsh(core: Any) : Script(core) {
                         false
                     }
 
-                    currentCircles.contains(ashPile.rsObject) -> true
+                    currentCircles.contains(ashPile.rsObject) -> {
+                        blacklist(ashPile.rsObject)
+                        true
+                    }
 
                     inventory.isFull -> true
 
@@ -119,7 +122,7 @@ class VolcanicAsh(core: Any) : Script(core) {
 
     private companion object {
         const val ASH_PILE_NAME = "Ash pile"
-        const val ASH_BLACKLIST_TTL_MS = 32_000L // 32 seconds
+        const val ASH_BLACKLIST_TTL_MS = 31000L // 40 seconds
     }
 }
 
